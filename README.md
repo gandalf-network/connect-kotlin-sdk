@@ -136,11 +136,13 @@ The `generateURL` method performs several validations:
 To extract the data key from a URL:
 
 ```kotlin
-try {
-    val dataKey = Connect.getDataKeyFromURL("https://example.com/?dataKey=a100")
-    println("DataKey: $dataKey")
-} catch(Exception e) {
-    println("Error: ${e.message}")
+runBlocking {
+    try {
+        val dataKey = Connect.getDataKeyFromURL("https://example.com/?dataKey=a100")
+        println("DataKey: $dataKey")
+    } catch(Exception e) {
+        println("Error: ${e.message}")
+    }
 }
 ```
 

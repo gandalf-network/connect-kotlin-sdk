@@ -52,7 +52,7 @@ class Connect(input: ConnectInput) {
         private suspend fun validatePublicKey(publicKey: String) {
             val apiService = ApiService()
             val isValidPublicKey = apiService.verifyPublicKey(publicKey).blockingGet()
-            if (isValidPublicKey) {
+            if (!isValidPublicKey) {
                 throw GandalfError(
                     "Public key does not exist",
                     GandalfErrorCode.InvalidPublicKey
