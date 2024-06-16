@@ -13,7 +13,9 @@ This section provides a quick overview of how to integrate the library into your
 
 ### Prerequisites
 
-- 
+- Kotlin: >= v1.8.8 
+- Gradle: >= v8.8
+- JDK:    >= v11 
 
 ## Installation
 
