@@ -1,17 +1,14 @@
 package com.gandalf.connect
 
 import com.apollographql.apollo3.ApolloClient
-import com.apollographql.apollo3.rx3.rxQuery
 import com.google.gson.Gson
 import com.gandalf.connect.api.ApiService
 import com.gandalf.connect.lib.*
 import com.gandalf.connect.types.*
-import io.reactivex.rxjava3.core.Single
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import java.net.URL
 import java.util.*
-import kotlin.collections.HashMap
 
 class Connect(input: ConnectInput) {
 

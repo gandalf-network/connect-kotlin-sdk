@@ -2,8 +2,6 @@
 package com.gandalf.connect.api
 
 import com.apollographql.apollo3.ApolloClient
-import com.apollographql.apollo3.api.Query
-import com.apollographql.apollo3.rx3.rxQuery
 import com.gandalf.connect.GetAppByPublicKeyQuery
 import com.gandalf.connect.GetSupportedServicesQuery
 import com.gandalf.connect.types.SupportedServicesAndTraits
@@ -11,7 +9,6 @@ import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.single
-import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.runBlocking
 import com.gandalf.connect.lib.WATSON_URL
 
