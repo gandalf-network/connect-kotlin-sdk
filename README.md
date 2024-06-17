@@ -31,7 +31,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.github.TosinJs:maven-try:1.0.0")
+    implementation("com.github.gandalf-network:connect-kotlin-sdk:1.0.0")
 }
 ```
 
@@ -46,7 +46,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.TosinJs:maven-try:1.0.0'
+    implementation 'com.github.gandalf-network:connect-kotlin-sdk:1.0.0'
 }
 ```
 
@@ -66,8 +66,8 @@ To integrate GandalfConnect into your project, add it to your `pom.xml` file:
 
 <dependencies>
     <dependency>
-        <groupId>com.github.TosinJs</groupId>
-        <artifactId>maven-try</artifactId>
+        <groupId>com.github.gandalf-network</groupId>
+        <artifactId>connect-kotlin-sdk</artifactId>
         <version>1.0.0</version>
     </dependency>
 </dependencies>
