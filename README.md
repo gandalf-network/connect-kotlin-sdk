@@ -87,7 +87,6 @@ import com.gandalf.connect.Connect
 import com.gandalf.connect.types.ConnectInput
 import com.gandalf.connect.types.InputData
 import com.gandalf.connect.types.Service
-import com.gandalf.connect.types.Platform
 ```
 
 ### Initialization
@@ -101,7 +100,7 @@ val services: InputData = mutableMapOf(
     "uber" to Service(traits = listOf("rating"), activities = listOf("trip"))
 )
 
-val connectInput = ConnectInput(publicKey, redirectURL, services, Platform.ANDROID)
+val connectInput = ConnectInput(publicKey, redirectURL, services)
 ```
 
 Initialize the `Connect` class:

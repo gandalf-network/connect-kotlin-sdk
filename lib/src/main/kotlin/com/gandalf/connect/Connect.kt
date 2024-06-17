@@ -18,7 +18,6 @@ class Connect(input: ConnectInput) {
     var publicKey: String = input.publicKey
     var redirectURL: String = input.redirectURL
     var data: InputData = input.services
-    var platform: Platform = input.platform ?: Platform.IOS
     var verificationComplete: Boolean = false
 
     init {
@@ -151,11 +150,7 @@ class Connect(input: ConnectInput) {
     }
 
     private fun encodeComponents(data: String, redirectUrl: String, publicKey: String): String {
-        val baseUrl = when (platform) {
-            Platform.ANDROID -> ANDROID_APP_CLIP_BASE_URL
-            Platform.UNIVERSAL -> UNIVERSAL_APP_CLIP_BASE_URL
-            Platform.IOS -> IOS_APP_CLIP_BASE_URL
-        }
+        val baseUrl = ANDROID_APP_CLIP_BASE_URL
 
         val base64Data = Base64.getEncoder().encodeToString(data.toByteArray())
 
