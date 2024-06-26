@@ -16,6 +16,7 @@ class Connect(input: ConnectInput) {
     var redirectURL: String = input.redirectURL
     var data: InputData = input.services
     var verificationComplete: Boolean = false
+    private var apiService: ApiService = ApiService()
 
     init {
         if (redirectURL.endsWith("/")) {
@@ -24,14 +25,17 @@ class Connect(input: ConnectInput) {
     }
 
     suspend fun generateURL(): String {
-        allValidations(publicKey, redirectURL, data)
+        allValidations(publicKey, redirectURL, data, this.apiService)
         val dataJson = Gson().toJson(data)
         return encodeComponents(dataJson, redirectURL, publicKey)
     }
 
+    fun setApiService(apiService: ApiService) {
+        this.apiService = apiService
+    }
+
     companion object {
-        suspend fun getSupportedServicesAndTraits(): SupportedServicesAndTraits {
-            val apiService = ApiService()
+        suspend fun getSupportedServicesAndTraits(apiService: ApiService = ApiService()): SupportedServicesAndTraits {
             return apiService.getSupportedServicesAndTraits().blockingGet()
         }
 
@@ -45,8 +49,7 @@ class Connect(input: ConnectInput) {
             )
         }
 
-        private suspend fun validatePublicKey(publicKey: String) {
-            val apiService = ApiService()
+        private suspend fun validatePublicKey(publicKey: String, apiService: ApiService = ApiService()) {
             val isValidPublicKey = apiService.verifyPublicKey(publicKey).blockingGet()
             if (!isValidPublicKey) {
                 throw GandalfError(
@@ -56,8 +59,7 @@ class Connect(input: ConnectInput) {
             }
         }
 
-        private suspend fun validateInputData(input: InputData): InputData {
-            val apiService = ApiService()
+        private suspend fun validateInputData(input: InputData, apiService: ApiService = ApiService()): InputData {
             val supportedServicesAndTraits = apiService.getSupportedServicesAndTraits().blockingGet()
             val cleanServices = mutableMapOf<String, Service>()
 
@@ -163,11 +165,16 @@ class Connect(input: ConnectInput) {
         return urlBuilder.build().toString()
     }
 
-    private suspend fun allValidations(publicKey: String, redirectURL: String, data: InputData) {
+    private suspend fun allValidations(
+        publicKey: String, 
+        redirectURL: String, 
+        data: InputData,
+        apiService: ApiService,
+        ) {
         if (!verificationComplete) {
-            validatePublicKey(publicKey)
+            validatePublicKey(publicKey, apiService)
             validateRedirectURL(redirectURL)
-            val cleanServices = validateInputData(data)
+            val cleanServices = validateInputData(data, apiService)
             this.data = cleanServices
         }
 
