@@ -37,7 +37,7 @@ We appreciate your interest in contributing to connect-kotlin-sdk! By contributi
    - Run the tests to ensure your changes don't break the existing code:
 
      ```sh
-     swift test
+     ./gradlew test
      ```
 
 6. **Commit your changes**:
