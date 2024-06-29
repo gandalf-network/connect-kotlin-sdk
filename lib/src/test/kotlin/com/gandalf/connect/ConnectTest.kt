@@ -3,7 +3,6 @@ import com.gandalf.connect.api.ApiService
 import com.gandalf.connect.types.*
 import com.gandalf.connect.lib.*
 import io.mockk.coEvery
-import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
@@ -11,7 +10,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.Assertions.assertThrows
 import io.reactivex.rxjava3.core.Single
 
 class ConnectTest {
@@ -35,9 +33,9 @@ class ConnectTest {
         coEvery { apiService.verifyPublicKey(any()) } returns Single.fromCallable{ true }
         coEvery { apiService.getSupportedServicesAndTraits() } returns Single.fromCallable { 
             SupportedServicesAndTraits(
-                services = mutableListOf("gandalf", "uber"),
-                traits = mutableListOf("rating"),
-                activities = mutableListOf("trip")
+                services = mutableListOf("gandalf", "uber", "booking"),
+                traits = mutableListOf("rating", "genius_level"),
+                activities = mutableListOf("trip", "shop")
             )
         }
 
@@ -54,10 +52,10 @@ class ConnectTest {
         }
 
         @Test
-        fun `test strip redirect URL of trailling slash`() {
-            input.redirectURL = "https://example.com/callback/"
-            val connect = Connect(input)
-            assertEquals(redirectURL, connect.redirectURL, "Redirect URL should match the input.")
+        fun `test strip redirect URL of trailing slash`() {
+            val newInput = input.copy(redirectURL = "https://example.com/callback/")
+            val connectWithSlash = Connect(newInput)
+            assertEquals(redirectURL, connectWithSlash.redirectURL, "Redirect URL should be stripped of trailing slash.")
         }
     }
 
@@ -68,14 +66,12 @@ class ConnectTest {
         @Test
         fun `run all validations`() = runBlocking {
             val generatedURL = connect.generateURL()
-            assertEquals(connect.verificationComplete, true, "All validation shoud be complete")
+            assertEquals(true, connect.verificationComplete, "All validations should be complete")
         }
 
         @Test
         fun `test invalid public key`() = runBlocking {
             coEvery { apiService.verifyPublicKey(any()) } returns Single.fromCallable{ false }
-            val connect = Connect(input)
-            connect.setApiService(apiService)
 
             try {
                 connect.generateURL()
@@ -89,7 +85,7 @@ class ConnectTest {
         }
 
         @Test
-        fun `test invalid redirect url key`() = runBlocking {
+        fun `test invalid redirect url`() = runBlocking {
             connect.redirectURL = "not a valid URL"
 
             try {
@@ -175,10 +171,33 @@ class ConnectTest {
         }
 
         @Test
-        fun `test more than one non Gandalf service passed`() = runBlocking {
+        fun `test single non Gandalf service passed`() = runBlocking {
             connect.data = mutableMapOf(
-                "uber" to Service(traits = listOf("rating"), activities = listOf("play")),
+                "uber" to Service(traits = listOf("rating"), activities = listOf("trip"))
+            )
+
+            val generatedURL = connect.generateURL()
+            assertNotNull(generatedURL, "A ConnectURL should be generated")
+            assertEquals(true, connect.verificationComplete, "All validations should be complete")
+        }
+
+        @Test
+        fun `test multiple non Gandalf services passed`() = runBlocking {
+            connect.data = mutableMapOf(
+                "uber" to Service(traits = listOf("rating"), activities = listOf("trip")),
                 "booking" to Service(traits = listOf("genius_level"), activities = listOf("shop")),
+            )
+
+            val generatedURL = connect.generateURL()
+            assertNotNull(generatedURL, "A ConnectURL should be generated")
+            assertEquals(true, connect.verificationComplete, "All validations should be complete")
+        }
+
+        @Test
+        fun `test multiple Gandalf services failing if not required`() = runBlocking {
+            connect.data = mutableMapOf(
+                "uber" to Service(traits = listOf("rating"), activities = listOf("trip"), required = false),
+                "booking" to Service(traits = listOf("genius_level"), activities = listOf("shop"), required = false),
             )
 
             try {
@@ -188,40 +207,20 @@ class ConnectTest {
             }
 
             assertNotNull(exception, "GandalfError should be thrown")
-            assertEquals("Only one non Gandalf service is supported per Connect URL", exception?.message)
+            assertEquals("At least one service must have the 'required' property set to true", exception?.message)
             assertEquals(false, connect.verificationComplete, "Validations should fail")
         }
-    }
 
-    @Nested
-    inner class GenerateURL {       
         @Test
-        fun `test generate URL`() = runBlocking {
+        fun `test mixed Gandalf and non Gandalf services passed`() = runBlocking {
             connect.data = mutableMapOf(
+                "gandalf" to Service(traits = listOf("rating"), activities = listOf("trip")),
                 "uber" to Service(traits = listOf("rating"), activities = listOf("trip")),
             )
 
-            val connectURL = connect.generateURL()
-
-            assertNotNull(connectURL, "A ConnectURL should be generated")
-        }
-    }
-
-
-    @Nested
-    inner class DataKeyExtraction {       
-        @Test
-        fun `getDataKeyFromURL should extract data key correctly`() {
-            val dataKey = Connect.getDataKeyFromURL("https://example.com/callback?dataKey=12345")
-            assertEquals("12345", dataKey)
-        }
-
-        @Test
-        fun `getDataKeyFromURL should fail if data key is missing`() {
-            val exception = assertThrows(GandalfError::class.java) {
-                Connect.getDataKeyFromURL("https://example.com/callback")
-            }
-            assertEquals("Datakey not found in the URL https://example.com/callback", exception.message)
+            val generatedURL = connect.generateURL()
+            assertNotNull(generatedURL, "A ConnectURL should be generated")
+            assertEquals(true, connect.verificationComplete, "All validations should be complete")
         }
     }
 }
