@@ -10,7 +10,8 @@ typealias InputData = MutableMap<String, Service>
 
 data class Service(
     val traits: List<String>? = emptyList(),
-    val activities: List<String>? = emptyList()
+    val activities: List<String>? = emptyList(),
+    val required: Boolean? = true
 )
 
 data class SupportedServicesAndTraits(

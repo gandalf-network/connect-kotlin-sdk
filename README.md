@@ -15,7 +15,7 @@ This section provides a quick overview of how to integrate the library into your
 
 - Kotlin: >= v1.8.8 
 - Gradle: >= v8.8
-- JDK:    >= v11 
+- JDK:    >= v17
 
 ## Installation
 
