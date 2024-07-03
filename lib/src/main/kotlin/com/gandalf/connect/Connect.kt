@@ -15,6 +15,7 @@ class Connect(input: ConnectInput) {
     var publicKey: String = input.publicKey
     var redirectURL: String = input.redirectURL
     var data: InputData = input.services
+    val options: ConnectOptions? = input.options
     var verificationComplete: Boolean = false
 
     init {
@@ -25,7 +26,12 @@ class Connect(input: ConnectInput) {
 
     suspend fun generateURL(): String {
         allValidations(publicKey, redirectURL, data)
-        val dataJson = Gson().toJson(data)
+        var dataJson = Gson().toJson(data)
+        if (options != null) {
+            val optionsJSON = Gson().toJson(options.style)
+            dataJson = dataJson.trim().removeSuffix("}") + "," +
+                            optionsJSON.trim().removePrefix("{")
+        }
         return encodeComponents(dataJson, redirectURL, publicKey)
     }
 
