@@ -14,7 +14,7 @@ subprojects {
     apply(plugin = "maven-publish")
 
     group = "com.gandalf.connect"
-    version = "1.0.0"
+    version = "1.0.1"
 
     publishing {
         publications {
@@ -22,7 +22,7 @@ subprojects {
                 from(components["java"])
                 groupId = "com.gandalf.connect"
                 artifactId = "gandalf-connect"
-                version = "1.0.0"
+                version = "1.0.1"
             }
         }
 
