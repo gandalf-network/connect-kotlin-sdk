@@ -13,9 +13,9 @@ This section provides a quick overview of how to integrate the library into your
 
 ### Prerequisites
 
-- Kotlin: >= v1.8.8 
+- Kotlin: >= v1.8.8
 - Gradle: >= v8.8
-- JDK:    >= v11 
+- JDK:    >= v17
 
 ## Installation
 
@@ -31,7 +31,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.github.TosinJs:maven-try:1.0.0")
+    implementation("com.github.gandalf-network:connect-kotlin-sdk:1.0.0")
 }
 ```
 
@@ -46,7 +46,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.TosinJs:maven-try:1.0.0'
+    implementation 'com.github.gandalf-network:connect-kotlin-sdk:1.0.0'
 }
 ```
 
@@ -66,8 +66,8 @@ To integrate GandalfConnect into your project, add it to your `pom.xml` file:
 
 <dependencies>
     <dependency>
-        <groupId>com.github.TosinJs</groupId>
-        <artifactId>maven-try</artifactId>
+        <groupId>com.github.gandalf-network</groupId>
+        <artifactId>connect-kotlin-sdk</artifactId>
         <version>1.0.0</version>
     </dependency>
 </dependencies>
@@ -97,7 +97,9 @@ Create an instance of `ConnectInput` with the necessary details:
 val publicKey = ""
 val redirectURL = "https://example.com"
 val services: InputData = mutableMapOf(
-    "uber" to Service(traits = listOf("rating"), activities = listOf("trip"))
+    "uber" to Service(traits = listOf("rating"), activities = listOf("trip")),
+    // You can add multiple services
+    "netflix" to Service(traits = listOf("rating"), activities = listOf("trip"), required = false), // the required prop is used to make a service optional
 )
 
 val connectInput = ConnectInput(publicKey, redirectURL, services)

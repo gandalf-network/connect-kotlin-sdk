@@ -15,8 +15,9 @@ class Connect(input: ConnectInput) {
     var publicKey: String = input.publicKey
     var redirectURL: String = input.redirectURL
     var data: InputData = input.services
-    val options: ConnectOptions? = input.options
+    var options: ConnectOptions? = input.options
     var verificationComplete: Boolean = false
+    private var apiService: ApiService = ApiService()
 
     init {
         if (redirectURL.endsWith("/")) {
@@ -25,19 +26,23 @@ class Connect(input: ConnectInput) {
     }
 
     suspend fun generateURL(): String {
-        allValidations(publicKey, redirectURL, data)
+        allValidations(publicKey, redirectURL, data, this.apiService)
         var dataJson = Gson().toJson(data)
-        if (options != null) {
-            val optionsJSON = Gson().toJson(options.style)
+        val safeOptions = options
+        if (safeOptions != null) {
+            val optionsJSON = Gson().toJson(safeOptions.style)
             dataJson = dataJson.trim().removeSuffix("}") + "," +
-                            optionsJSON.trim().removePrefix("{")
+                    "\"options\":" + optionsJSON + "}"
         }
         return encodeComponents(dataJson, redirectURL, publicKey)
     }
 
+    fun setApiService(apiService: ApiService) {
+        this.apiService = apiService
+    }
+
     companion object {
-        suspend fun getSupportedServicesAndTraits(): SupportedServicesAndTraits {
-            val apiService = ApiService()
+        suspend fun getSupportedServicesAndTraits(apiService: ApiService = ApiService()): SupportedServicesAndTraits {
             return apiService.getSupportedServicesAndTraits().blockingGet()
         }
 
@@ -51,8 +56,7 @@ class Connect(input: ConnectInput) {
             )
         }
 
-        private suspend fun validatePublicKey(publicKey: String) {
-            val apiService = ApiService()
+        private suspend fun validatePublicKey(publicKey: String, apiService: ApiService = ApiService()) {
             val isValidPublicKey = apiService.verifyPublicKey(publicKey).blockingGet()
             if (!isValidPublicKey) {
                 throw GandalfError(
@@ -62,8 +66,7 @@ class Connect(input: ConnectInput) {
             }
         }
 
-        private suspend fun validateInputData(input: InputData): InputData {
-            val apiService = ApiService()
+        private suspend fun validateInputData(input: InputData, apiService: ApiService = ApiService()): InputData {
             val supportedServicesAndTraits = apiService.getSupportedServicesAndTraits().blockingGet()
             val cleanServices = mutableMapOf<String, Service>()
 
@@ -71,12 +74,14 @@ class Connect(input: ConnectInput) {
             val keys = input.keys
             val lkeys = keys.map { it.lowercase() }
 
-            if (lkeys.size > 2 || (lkeys.size == 2 && !lkeys.contains("gandalf"))) {
+            if (lkeys.size == 1 && lkeys.contains("gandalf")) {
                 throw GandalfError(
-                    "Only one non Gandalf service is supported per Connect URL",
+                    "Another non Gandalf service is required",
                     GandalfErrorCode.InvalidService
                 )
             }
+
+            var atLeastOneServiceRequired = false
 
             for (key in keys) {
                 if (!supportedServicesAndTraits.services.contains(key.lowercase())) {
@@ -84,14 +89,25 @@ class Connect(input: ConnectInput) {
                     continue
                 }
 
-                val service = input[key]
-                validateInputService(service!!, supportedServicesAndTraits)
-                cleanServices[key.lowercase()] = input[key]!!
+                val service = input[key]!!.copy(required = input[key]!!.required ?: true)
+                validateInputService(service, supportedServicesAndTraits)
+                cleanServices[key.lowercase()] = service
+
+                if (service.required == true) {
+                    atLeastOneServiceRequired = true
+                }
             }
 
             if (unsupportedServices.isNotEmpty()) {
                 throw GandalfError(
                     "These services [ ${unsupportedServices.joinToString(", ")} ] are unsupported",
+                    GandalfErrorCode.InvalidService
+                )
+            }
+
+            if (!atLeastOneServiceRequired) {
+                throw GandalfError(
+                    "At least one service must have the 'required' property set to true",
                     GandalfErrorCode.InvalidService
                 )
             }
@@ -169,11 +185,24 @@ class Connect(input: ConnectInput) {
         return urlBuilder.build().toString()
     }
 
-    private suspend fun allValidations(publicKey: String, redirectURL: String, data: InputData) {
+    private fun ensureRequiredProperty(data: InputData): InputData {
+        val cleanServices = mutableMapOf<String, Service>()
+        data.forEach { (key, service) ->
+            cleanServices[key] = service.copy(required = service.required ?: true)
+        }
+        return cleanServices
+    }
+
+    private suspend fun allValidations(
+        publicKey: String, 
+        redirectURL: String, 
+        data: InputData,
+        apiService: ApiService,
+        ) {
         if (!verificationComplete) {
-            validatePublicKey(publicKey)
+            validatePublicKey(publicKey, apiService)
             validateRedirectURL(redirectURL)
-            val cleanServices = validateInputData(data)
+            val cleanServices = validateInputData(ensureRequiredProperty(data), apiService)
             this.data = cleanServices
         }
 
