@@ -13,7 +13,7 @@ This section provides a quick overview of how to integrate the library into your
 
 ### Prerequisites
 
-- Kotlin: >= v1.8.8 
+- Kotlin: >= v1.8.8
 - Gradle: >= v8.8
 - JDK:    >= v17
 
@@ -97,7 +97,9 @@ Create an instance of `ConnectInput` with the necessary details:
 val publicKey = ""
 val redirectURL = "https://example.com"
 val services: InputData = mutableMapOf(
-    "uber" to Service(traits = listOf("rating"), activities = listOf("trip"))
+    "uber" to Service(traits = listOf("rating"), activities = listOf("trip")),
+    // You can add multiple services
+    "netflix" to Service(traits = listOf("rating"), activities = listOf("trip"), required = false), // the required prop is used to make a service optional
 )
 
 val connectInput = ConnectInput(publicKey, redirectURL, services)
