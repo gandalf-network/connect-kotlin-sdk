@@ -31,7 +31,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.github.gandalf-network:connect-kotlin-sdk:1.0.0")
+    implementation("com.github.gandalf-network:connect-kotlin-sdk:1.0.1")
 }
 ```
 
@@ -46,7 +46,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.gandalf-network:connect-kotlin-sdk:1.0.0'
+    implementation 'com.github.gandalf-network:connect-kotlin-sdk:1.0.1'
 }
 ```
 
@@ -68,7 +68,7 @@ To integrate GandalfConnect into your project, add it to your `pom.xml` file:
     <dependency>
         <groupId>com.github.gandalf-network</groupId>
         <artifactId>connect-kotlin-sdk</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.1</version>
     </dependency>
 </dependencies>
 ```
@@ -102,7 +102,16 @@ val services: InputData = mutableMapOf(
     "netflix" to Service(traits = listOf("rating"), activities = listOf("trip"), required = false), // the required prop is used to make a service optional
 )
 
-val connectInput = ConnectInput(publicKey, redirectURL, services)
+// Optional paramter to modify the Connect UI
+val style = StylingOptions(
+    primaryColor = "#FF0000", 
+    backgroundColor = "#0000FF", 
+    foregroundColor = "#fff", 
+    accentColor = "#562ba6"
+)
+val options: ConnectOptions =  ConnectOptions(style)
+
+val connectInput = ConnectInput(publicKey, redirectURL, services, options)
 ```
 
 Initialize the `Connect` class:

@@ -222,5 +222,20 @@ class ConnectTest {
             assertNotNull(generatedURL, "A ConnectURL should be generated")
             assertEquals(true, connect.verificationComplete, "All validations should be complete")
         }
+
+        @Test
+        fun `style properties passed`() = runBlocking {
+            connect.data = mutableMapOf(
+                "gandalf" to Service(traits = listOf("rating"), activities = listOf("trip")),
+                "uber" to Service(traits = listOf("rating"), activities = listOf("trip")),
+            )
+
+            val stylingOptions = StylingOptions(primaryColor = "#FFFFFF", accentColor = "#123456")
+            connect.options = ConnectOptions(style = stylingOptions)
+            
+            val generatedURL = connect.generateURL()
+            assertNotNull(generatedURL, "A ConnectURL should be generated")
+            assertEquals(true, connect.verificationComplete, "All validations should be complete")
+        }
     }
 }
