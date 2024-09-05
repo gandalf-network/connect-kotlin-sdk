@@ -31,7 +31,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.github.gandalf-network:connect-kotlin-sdk:1.0.1")
+    implementation("com.github.gandalf-network:connect-kotlin-sdk:1.0.2")
 }
 ```
 
@@ -46,7 +46,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.gandalf-network:connect-kotlin-sdk:1.0.1'
+    implementation 'com.github.gandalf-network:connect-kotlin-sdk:1.0.2'
 }
 ```
 
@@ -68,7 +68,7 @@ To integrate GandalfConnect into your project, add it to your `pom.xml` file:
     <dependency>
         <groupId>com.github.gandalf-network</groupId>
         <artifactId>connect-kotlin-sdk</artifactId>
-        <version>1.0.1</version>
+        <version>1.0.2</version>
     </dependency>
 </dependencies>
 ```

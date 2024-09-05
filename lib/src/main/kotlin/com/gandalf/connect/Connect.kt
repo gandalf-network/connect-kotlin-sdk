@@ -181,6 +181,7 @@ class Connect(input: ConnectInput) {
         urlBuilder.addQueryParameter("publicKey", publicKey)
         urlBuilder.addQueryParameter("redirectUrl", redirectUrl)
         urlBuilder.addQueryParameter("data", base64Data)
+        urlBuilder.addQueryParameter("isUniversal", "true")
 
         return urlBuilder.build().toString()
     }
